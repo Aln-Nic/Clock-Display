@@ -1,0 +1,86 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.time.LocalTime;
+import java.util.Random;
+
+class Clock extends JFrame {
+    private ClockDisplay clock;
+    private JLabel timeLabel;
+    private Timer timer;
+    private JLabel dateLabel;
+    private JLabel tempLabel;
+
+    public Clock() {
+        LocalTime curTime = LocalTime.now();
+        clock = new ClockDisplay(curTime.getHour(), curTime.getMinute(), curTime.getSecond());
+
+        setTitle("This is a clock.");
+        setSize(300, 200);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+
+        timeLabel = new JLabel(clock.getTime(), SwingConstants.CENTER);
+        timeLabel.setFont(new Font("Serif", Font.BOLD, 40));
+
+        JPanel centerPanel = new JPanel();
+        centerPanel.setLayout(new BoxLayout(centerPanel, BoxLayout.Y_AXIS));
+        centerPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        centerPanel.setAlignmentY(Component.CENTER_ALIGNMENT);
+
+        centerPanel.add(Box.createVerticalGlue());
+
+        timeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        centerPanel.add(timeLabel);
+        centerPanel.add(Box.createRigidArea(new Dimension(0, 10)));
+
+        String today = java.time.LocalDate.now()
+                .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+        dateLabel = new JLabel(today, SwingConstants.CENTER);
+        dateLabel.setFont(new Font("Serif", Font.PLAIN, 20));
+        dateLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        centerPanel.add(dateLabel);
+
+        // Tambahkan label suhu
+        tempLabel = new JLabel(getTemperatureText(), SwingConstants.CENTER);
+        tempLabel.setFont(new Font("Serif", Font.PLAIN, 18));
+        tempLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        centerPanel.add(tempLabel);
+
+        centerPanel.add(Box.createVerticalGlue());
+        add(centerPanel, BorderLayout.CENTER);
+
+        startClock();
+        setVisible(true);
+    }
+
+    private void startClock() {
+        timer = new Timer(1000, new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                clock.timeTick();
+                timeLabel.setText(clock.getTime());
+
+                String today = java.time.LocalDate.now()
+                        .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+                dateLabel.setText(today);
+
+                // Update suhu (dummy)
+                tempLabel.setText(getTemperatureText());
+            }
+        });
+        timer.start();
+    }
+
+    // Fungsi dummy untuk mendapatkan suhu ruangan
+    private String getTemperatureText() {
+        // Bisa diganti dengan data dari sensor / API cuaca
+        Random rand = new Random();
+        int suhu = 25 + rand.nextInt(6); // suhu random antara 25 - 30
+        return suhu + " °C";
+    }
+
+    public static void main(String[] args) {
+        new Clock();
+    }
+}
